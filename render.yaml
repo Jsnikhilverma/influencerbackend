@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: my-backend
+    env: node
+    plan: free # or starter/standard depending on your needs
+    region: oregon # or frankfurt, singapore, etc.
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Add more environment variables here if needed
