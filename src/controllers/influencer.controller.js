@@ -182,6 +182,59 @@ export const createBid = async (req, res) => {
   }
 };
 
+export const getMyProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ error: "Not found" });
+    return res.json({ user: sanitizeUser(user) });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch profile" });
+  }
+};
+
+export const listMyBidProjects = async (req, res) => {
+  try {
+    const bids = await Bid.find({ influencer: req.user.id })
+      .populate({
+        path: "project",
+        populate: { path: "client", select: "name slug" },
+      })
+      .sort({ createdAt: -1 });
+
+    const projects = bids
+      .filter((b) => b.project)
+      .map((b) => ({
+        id: b.project._id,
+        title: b.project.title,
+        description: b.project.description,
+        slug: b.project.slug,
+        status: b.project.status,
+        budgetMin: b.project.budgetMin,
+        budgetMax: b.project.budgetMax,
+        niches: b.project.niches,
+        platforms: b.project.platforms,
+        client: b.project.client
+          ? {
+              id: b.project.client._id,
+              name: b.project.client.name,
+              slug: b.project.client.slug,
+            }
+          : null,
+        myBid: {
+          id: b._id,
+          amount: b.amount,
+          message: b.message,
+          status: b.status,
+          createdAt: b.createdAt,
+        },
+      }));
+
+    return res.json({ projects });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch projects" });
+  }
+};
+
 const sanitizeUser = (user) => ({
   id: user._id,
   name: user.name,

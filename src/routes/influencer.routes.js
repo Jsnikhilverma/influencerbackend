@@ -7,6 +7,8 @@ import {
   createBid,
   filterInfluencers,
   uploadAvatar,
+  getMyProfile,
+  listMyBidProjects,
 } from "../controllers/influencer.controller.js";
 import { requireAuth } from "../middleware/auth.js";
 import { avatarUpload } from "../middleware/upload.js";
@@ -17,6 +19,8 @@ router.get("/", listInfluencers);
 router.get("/filter", filterInfluencers);
 router.get("/id/:id", getInfluencerById);
 router.get("/slug/:slug", getInfluencerBySlug);
+router.get("/me", requireAuth(["influencer"]), getMyProfile);
+router.get("/me/projects", requireAuth(["influencer"]), listMyBidProjects);
 
 router.put("/me", requireAuth(["influencer"]), updateMyProfile);
 router.post("/bids", requireAuth(["influencer"]), createBid);
